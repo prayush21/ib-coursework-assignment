@@ -18,11 +18,17 @@ const config = {
       },
     },
     extend: {
+      fontSize: {
+        tagSize: "0.6rem",
+      },
       colors: {
         upload: "#FCFBFD",
         "upload-container": "#FCFBFDB8",
         "upload-btn-border": "#CEC4EB",
         "upload-shadow-color": "#6947BF1F",
+        "card-golden": "rgba(244, 234, 216)",
+        "card-blue": "rgba(216, 227, 244",
+        "tag-color": "rgba(91, 97, 112, 1)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

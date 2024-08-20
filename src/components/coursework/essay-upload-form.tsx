@@ -10,22 +10,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import React, { useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import FileUploadIcon from "./icons/file-upload";
-import { Button } from "./ui/button";
+import FileUploadIcon from "../icons/file-upload";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectItem,
   SelectTrigger,
   SelectContent,
   SelectValue,
-} from "./ui/select";
-import { Input } from "./ui/input";
+} from "../ui/select";
+import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
-import { Label } from "./ui/label";
-import EvaluateIcon from "./icons/evaluate";
+import { Label } from "../ui/label";
+import EvaluateIcon from "../icons/evaluate";
 
 const formSchema = z.object({
   essayFile: z.instanceof(FileList),

@@ -29,7 +29,7 @@ export default function RootLayout({
             <LogoIcon />
             <BurgerMenu />
           </header>
-          <main className="flex sm:flex-1 min-h-screen flex-col items-center justify-between py-10 sm:px-24">
+          <main className="flex sm:flex-1 min-h-screen flex-col items-center justify-between py-10 sm:px-24 md:px-16 overflow-auto">
             {children}
           </main>
           <aside className="z-10 hidden w-14 flex-col border-r bg-background sm:flex mx-2">
