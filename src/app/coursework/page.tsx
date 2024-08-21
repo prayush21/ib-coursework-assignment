@@ -55,8 +55,6 @@ export default function CourseworkPage({}: Props) {
     },
   ];
 
-  console.log("MyCourseworkCardItems", MyCourseworkCardItems);
-
   return (
     <div className="w-full flex flex-col gap-4 overflow-scroll">
       <div className="flex flex-row gap-3 w-full">
