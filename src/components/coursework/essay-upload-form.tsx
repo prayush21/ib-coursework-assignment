@@ -11,8 +11,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import localforage from "localforage";
 import FileUploadIcon from "../icons/file-upload";
 import { Button } from "../ui/button";
 import {
@@ -26,9 +27,13 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import EvaluateIcon from "../icons/evaluate";
+import { usePathname, useRouter } from "next/navigation";
+import { randomUUID } from "crypto";
+import GreenTick from "../icons/green-tick";
+import CrossIcon from "../icons/cross-icon";
 
 const formSchema = z.object({
-  essayFile: z.instanceof(FileList),
+  essayFile: z.instanceof(File),
   courseworkType: z.string().min(2).max(50),
   subject: z.string().min(2).max(50),
   title: z.string().min(2).max(50),
@@ -36,6 +41,9 @@ const formSchema = z.object({
 type Props = {};
 
 function EssayUploadForm({}: Props) {
+  const [fileState, setFileState] = useState<File | null>();
+  const router = useRouter();
+  const pathname = usePathname();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,28 +54,53 @@ function EssayUploadForm({}: Props) {
   });
 
   const fileRef = form.register("essayFile");
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles[0]) {
+        form.setValue("essayFile", acceptedFiles[0]);
+        setFileState(acceptedFiles[0]);
+      }
+    },
+  });
 
   useEffect(() => {
-    const storedValues = JSON.parse(localStorage.getItem("essayFormData"));
-    if (storedValues) {
-      console.log("sv", storedValues);
-    }
+    // const storedValues = JSON.parse(localStorage.getItem("essayFormData"));
+    // if (storedValues) {
+    //   console.log("sv", storedValues);
+    // }
   }, [form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("val", values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const id = crypto.randomUUID();
+    console.log("id", id);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const fileData = reader.result;
-      const dataToStore = {
-        ...values,
-        essayFile: fileData,
-      };
-      localStorage.setItem("essayFormData", JSON.stringify(dataToStore));
-    };
-    reader.readAsDataURL(values.essayFile[0]);
+    if (
+      values.essayFile &&
+      values.courseworkType &&
+      values.subject &&
+      values.title
+    ) {
+      try {
+        // Store the file in localForage
+        await localforage.setItem("uploadedFile", { ...values, id });
+        console.log("File stored successfully:", values);
+        router.push(`${pathname}/${id}`);
+        // setUpdated(!updated);
+      } catch (error) {
+        console.error("Error storing the file:", error);
+      }
+    }
+
+    // const reader = new FileReader();
+    // reader.onload = () => {
+    //   const fileData = reader.result;
+    //   const dataToStore = {
+    //     ...values,
+    //     essayFile: fileData,
+    //   };
+    //   localStorage.setItem("essayFormData", JSON.stringify(dataToStore));
+    // };
+    // reader.readAsDataURL(values.essayFile[0]);
   }
 
   console.log("form", form.formState);
@@ -91,28 +124,45 @@ function EssayUploadForm({}: Props) {
                       placeholder="Input file..."
                       {...fileRef}
                     /> */}
-                    {
-                      <div
-                        {...getRootProps({
-                          className:
-                            "dropzone border min-h-52 border-dashed border-gray-400 rounded-md p-2 flex flex-col gap-2 items-center bg-upload justify-center gap-4",
-                        })}
-                      >
-                        <input {...getInputProps()} {...fileRef} />
-                        <FileUploadIcon />
-                        <div className="text-center">
-                          <div>Drag and drop a PDF</div>
-                          <div className="text-sm">*Limit 25 MB per file</div>
+
+                    <div
+                      {...getRootProps({
+                        className:
+                          "dropzone border min-h-52 border-dashed border-gray-400 rounded-md p-2 flex flex-col gap-2 items-center bg-upload justify-center gap-4",
+                      })}
+                    >
+                      {fileState ? (
+                        <div className="flex items-center gap-2 border rounded-md my-auto px-5 py-2 w-fit relative">
+                          <GreenTick className=" h-10 w-10" /> {fileState.name}
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFileState(null);
+                              form.resetField("essayFile");
+                            }}
+                            className=" absolute -top-1 -right-1 z-10 bg-white border rounded-full"
+                          >
+                            <CrossIcon className="" />
+                          </div>
                         </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-fit rounded-3xl text-primary shadow-md shadow-upload-shadow-color"
-                        >
-                          Upload your file
-                        </Button>
-                      </div>
-                    }
+                      ) : (
+                        <>
+                          <input {...getInputProps()} {...fileRef} />
+                          <FileUploadIcon />
+                          <div className="text-center">
+                            <div>Drag and drop a PDF</div>
+                            <div className="text-sm">*Limit 25 MB per file</div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-fit rounded-3xl text-primary shadow-md shadow-upload-shadow-color"
+                          >
+                            Upload your file
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

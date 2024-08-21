@@ -1,12 +1,10 @@
-import Image from "next/image";
 import React from "react";
-import courseworkImage from "../../../public/assets/image.png";
-import CourseworkUpload from "@/components/coursework/coursework-upload";
-import MyCourseworkGrid from "@/components/coursework/my-coursework-grid";
-import ExploreCoursework from "@/components/coursework/explore-coursework";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CourseworkCard from "./card";
+
 type Props = {};
 
-export default function CourseworkPage({}: Props) {
+function ExploreCoursework({}: Props) {
   const MyCourseworkCardItems = [
     {
       id: "2834r3289u-239fu32-02fi3-dsf4w49",
@@ -55,29 +53,70 @@ export default function CourseworkPage({}: Props) {
     },
   ];
 
-  console.log("MyCourseworkCardItems", MyCourseworkCardItems);
-
+  const tabsDataArray = [
+    {
+      label: "All",
+      cardItems: MyCourseworkCardItems,
+      value: "all",
+    },
+    {
+      label: "IA Example",
+      cardItems: [MyCourseworkCardItems[1]],
+      value: "ia_example",
+    },
+    {
+      label: "EE Example",
+      cardItems: [MyCourseworkCardItems[0]],
+      value: "ee",
+    },
+    {
+      label: "IO Example",
+      cardItems: MyCourseworkCardItems,
+      value: "io_example",
+    },
+    {
+      label: "TOK Example",
+      cardItems: MyCourseworkCardItems,
+      value: "tok_example",
+    },
+  ];
   return (
-    <div className="w-full flex flex-col gap-4 overflow-scroll">
-      <div className="flex flex-row gap-3 w-full">
-        <div className="flex flex-col gap-4">
-          <div className="text-2xl font-bold tracking-normal">
-            Hey IB Folks ! Unsure about the quality of your answers?{" "}
-            <span className=" text-violet-700">We get you.</span>
-          </div>
-          <CourseworkUpload />
-        </div>
-        <Image
-          className="hidden lg:block"
-          style={{ height: "528px", width: "290px" }}
-          src={courseworkImage}
-          height={528}
-          width={290}
-          alt="coursework-image"
-        />
+    <>
+      <div className=" text-xl text-slate-500 font-semibold">
+        Explore coursework
       </div>
-      <MyCourseworkGrid cardItems={MyCourseworkCardItems} />
-      <ExploreCoursework />
-    </div>
+      <Tabs defaultValue="all" className="">
+        <TabsList>
+          {tabsDataArray.map((tab) => {
+            return (
+              <TabsTrigger
+                className="data-[state=active]:text-primary"
+                key={tab.value}
+                value={tab.value}
+              >
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+        {tabsDataArray.map((tab) => {
+          return (
+            <TabsContent key={tab.value} value={tab.value}>
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-4">
+                {tab.cardItems.map((cardItem) => {
+                  return (
+                    <div key={cardItem.id}>
+                      <CourseworkCard {...cardItem} />
+                    </div>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          );
+        })}
+      </Tabs>
+    </>
   );
 }
+
+export default ExploreCoursework;
